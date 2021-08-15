@@ -1,0 +1,163 @@
+ "server {\n   listen       80;
+    \n    server_name  localhost;\n\n    
+   #charset
+    koi8-r;\n    
+    #access_log  
+    /var/log/nginx/host.access.log  main;\n    
+   location
+    root /usr/share/nginx/html;\n      
+    index index.html index.html;\n     }\n
+    location /check.txt {\n       root /usr/share/nginx/html;\n       return
+    200 '200 \"its working\"';\n     }\n \n    
+    location /403 {\n        root   /usr/share/nginx/html;\n
+    \       #index  index.html index.htm;\n        return 403;\n    }\n\n\n    
+   location
+    /404 {\n        root   /usr/share/nginx/html;\n        #index  index.html index.htm;\n
+    \       return 404;\n    }\n\n    location /500 {\n        root   /usr/share/nginx/html;\n
+    \       #index  index.html index.htm;\n        return 500;\n    }\n    \n    location
+    /502 {\n        root   /usr/share/nginx/html;\n        #index  index.html index.htm;\n
+    \       return 502;\n    }\n    \n    error_page 500                /500.html;\n
+    \   location = /500.html {\n         root /usr/share/nginx/html;\n    }  \n    error_page
+    404               /404.html;\n    location = /404.html {\n         root /usr/share/nginx/html;\n
+    \   }  \n    error_page 403                /403.html;\n    location = /403.html
+    {\n         root /usr/share/nginx/html;\n    }  \n\n    error_page 502               /502.html;\n
+    \   location = /502.html {\n         root /usr/share/nginx/html;\n    }  \n\n
+    \   # redirect server error pages to the static page /50x.html\n    #\n#    error_page
+    \  500 502 503 504  /50x.html;\n#    location = /50x.html {\n#        root   /usr/share/nginx/html;\n#
+    \   }\n\n    # proxy the PHP scripts to Apache listening on 127.0.0.1:80\n    #\n
+    \   #location ~ \\.php$ {\n    #    proxy_pass   http://127.0.0.1;\n    #}\n\n
+    \   # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000\n    #\n
+    \   #location ~ \\.php$ {\n    #    root           html;\n    #    fastcgi_pass
+    \  127.0.0.1:9000;\n    #    fastcgi_index  index.php;\n    #    fastcgi_param
+    \ SCRIPT_FILENAME  /scripts$fastcgi_script_name;\n    #    include        fastcgi_params;\n
+    \   #}\n\n    # deny access to .htaccess files, if Apache's document root\n    #
+    concurs with nginx's one\n    #\n    #location ~ /\\.ht {\n    #    deny  all;\n
+    \   #}\n}\n\n"
+
+
+[root@ip-172-31-23-78 nginx]# cat nginx.conf
+
+user  nginx;
+worker_processes  auto;
+
+error_log  /var/log/nginx/error.log notice;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    include /etc/nginx/conf.d/*.conf;
+}
+[root@ip-172-31-23-78 nginx]# [root@ip-172-31-23-78 nginx]# cat nginx.conf
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+
+[root@ip-172-31-23-78 conf.d]# cat default.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx.conf
+server {
+    listen       80;
+    listen  [::]:80;
+    server_name  localhost;
+
+    #access_log  /var/log/nginx/host.access.log  main;
+
+    location / {
+        root   /usr/share/nginx/html;
+        index  index.html index.htm;
+    }
+
+
+    location /check.txt { 
+    	root /path/to/www/nginx;
+    	return 200 'its working!!!';
+    }
+    location /404 { 
+    	root /path/to/www/nginx;
+    	return 404 'Not Found';
+    }
+    location /403 { 
+    	root /path/to/www/nginx;
+    	return 403 'Forbidden';
+    }
+    location /500 { 
+    	root /path/to/www/nginx;
+    	return 500 'Application error';
+    }
+    location /502 { 
+    	root /path/to/www/nginx;
+    	return 502 'Bad Gateway';
+    }
+    #error_page  404              /404.html;
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+    # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+    #
+    #location ~ \.php$ {
+    #    proxy_pass   http://127.0.0.1;
+    #}
+
+    # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+    #
+    #location ~ \.php$ {
+    #    root           html;
+    #    fastcgi_pass   127.0.0.1:9000;
+    #    fastcgi_index  index.php;
+    #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+    #    include        fastcgi_params;
+    #}
+
+    # deny access to .htaccess files, if Apache's document root
+    # concurs with nginx's one
+    #
+    #location ~ /\.ht {
+    #    deny  all;
+    #}
+}
+

@@ -1,0 +1,58 @@
+To update kubeconfig file
+VENKATESH@LAPTOP-VTG5RAF0 MINGW64 /g/Aws-eks
+$ aws eks --region ap-south-1 update-kubeconfig --name eks_cluster_demo
+Updated context arn:aws:eks:ap-south-1:542157663317:cluster/eks_cluster_demo in C:\Users\VENKATESH\.kube\config
+
+VENKATESH@LAPTOP-VTG5RAF0 MINGW64 /g/Aws-eks
+$ kubectl get nodes
+NAME                                        STATUS   ROLES    AGE   VERSION
+ip-10-0-0-127.ap-south-1.compute.internal   Ready    <none>   25m   v1.20.4-eks-6b7464
+ip-10-0-1-55.ap-south-1.compute.internal    Ready    <none>   25m   v1.20.4-eks-6b7464
+
+VENKATESH@LAPTOP-VTG5RAF0 MINGW64 /g/Aws-eks
+$ kubectl get svc
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   172.20.0.1   <none>        443/TCP   92m
+
+VENKATESH@LAPTOP-VTG5RAF0 MINGW64 /g/Aws-eks
+
+
+Create a Kubernetes Metrics Server
+
+1.    To install Metrics Server, run the following command:
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.3.6/components.yaml
+2.    To confirm that Metrics Server is running, run the following command:
+kubectl get pods -n kube-system -l k8s-app=metrics-server
+The output is similar to the following:
+kubectl get pods -n kube-system -l k8s-app=metrics-server
+metrics-server-85cc795fbf-79d72   1/1     Running   0          22s
+
+kubectl autoscale deployment php-apache --cpu-percent=20 --min=1 --max=10
+
+To load test
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: infinite-calls
+  labels:
+    app: infinite-calls
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: infinite-calls
+  template
+    metadata:
+      name: infinite-calls
+      labels:
+        app: infinite-calls
+spec:
+      containers:
+      - name: infinite-calls
+        image: busybox
+        command:
+        - /bin/sh
+        - -c
+        - "while true; do wget -q -O- http://php-apache; done"
+
+https://console-openshift-console.apps.ex288.openshiftlab.xyz
